@@ -1,27 +1,28 @@
 <!-- templates/index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Shortener Dashboard</title>
+    <title>Link Locker Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Link Shortener</h1>
-        <p>Create short, memorable links in seconds.</p>
+        <h1>Link Locker Creator</h1>
+        <p>Create links that require actions to unlock.</p>
 
-        <form id="shorten-form">
-            <input type="url" id="url-input" placeholder="Enter a long URL to shorten..." required>
-            <button type="submit">Shorten</button>
+        <form id="create-form">
+            <input type="url" id="destination-url" placeholder="Enter Destination URL (Final Link)..." required>
+            <input type="url" id="youtube-url" placeholder="Enter Your YouTube Channel URL..." required>
+            <input type="url" id="telegram-url" placeholder="Enter Your Telegram Channel URL..." required>
+            <button type="submit">Create Locked Link</button>
         </form>
 
         <div id="result" class="hidden">
-            <p>Your shortened link:</p>
+            <p>Your new locked link:</p>
             <div class="short-link-container">
-                <a href="" id="short-url" target="_blank"></a>
+                <a href="" id="locked-url" target="_blank"></a>
                 <button id="copy-button">Copy</button>
             </div>
         </div>
@@ -30,31 +31,33 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('shorten-form');
-            const urlInput = document.getElementById('url-input');
+            const form = document.getElementById('create-form');
             const resultDiv = document.getElementById('result');
             const errorDiv = document.getElementById('error-message');
-            const shortUrlLink = document.getElementById('short-url');
+            const lockedUrlLink = document.getElementById('locked-url');
             const copyButton = document.getElementById('copy-button');
 
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const longUrl = urlInput.value;
                 resultDiv.classList.add('hidden');
                 errorDiv.classList.add('hidden');
 
+                const dataToSend = {
+                    destination_url: document.getElementById('destination-url').value,
+                    youtube_url: document.getElementById('youtube-url').value,
+                    telegram_url: document.getElementById('telegram-url').value,
+                };
+
                 try {
-                    const response = await fetch('/shorten', {
+                    const response = await fetch('/create', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ url: longUrl }),
+                        body: JSON.stringify(dataToSend),
                     });
-
                     const data = await response.json();
-
                     if (response.ok) {
-                        shortUrlLink.href = data.short_url;
-                        shortUrlLink.textContent = data.short_url;
+                        lockedUrlLink.href = data.locked_url;
+                        lockedUrlLink.textContent = data.locked_url;
                         resultDiv.classList.remove('hidden');
                     } else {
                         errorDiv.textContent = data.error || 'An error occurred.';
@@ -67,14 +70,12 @@
             });
 
             copyButton.addEventListener('click', () => {
-                navigator.clipboard.writeText(shortUrlLink.href).then(() => {
+                navigator.clipboard.writeText(lockedUrlLink.href).then(() => {
                     copyButton.textContent = 'Copied!';
-                    setTimeout(() => {
-                        copyButton.textContent = 'Copy';
-                    }, 2000);
+                    setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
                 });
             });
         });
     </script>
 </body>
-  </html>
+</html>
