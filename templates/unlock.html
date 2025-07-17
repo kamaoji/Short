@@ -1,0 +1,68 @@
+<!-- templates/unlock.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unlock Link</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container unlock-container">
+        <h1>Complete Steps to Unlock</h1>
+        <p>Please complete the following steps to get your link.</p>
+
+        <div class="steps">
+            <button class="step-button" data-task="1" data-url="{{ youtube_url }}">
+                <span class="button-text">▶️ Subscribe YouTube</span>
+            </button>
+            <button class="step-button" data-task="2" data-url="{{ telegram_url }}">
+                <span class="button-text">✈️ Join Telegram</span>
+            </button>
+        </div>
+        
+        <a href="{{ destination_url }}" id="get-link-button" class="hidden">
+            <button class="get-link">✅ Get Your Link</button>
+        </a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const stepButtons = document.querySelectorAll('.step-button');
+            const getLinkButton = document.getElementById('get-link-button');
+            const tasksToComplete = stepButtons.length;
+            let tasksCompleted = 0;
+
+            stepButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Open the link in a new tab
+                    window.open(button.dataset.url, '_blank');
+                    
+                    // Disable the button to prevent multiple clicks
+                    button.disabled = true;
+                    
+                    const buttonText = button.querySelector('.button-text');
+                    let countdown = 5;
+                    buttonText.textContent = `Please wait ${countdown}...`;
+
+                    const interval = setInterval(() => {
+                        countdown--;
+                        buttonText.textContent = `Please wait ${countdown}...`;
+                        if (countdown <= 0) {
+                            clearInterval(interval);
+                            button.classList.add('completed');
+                            buttonText.textContent = 'Done ✓';
+                            tasksCompleted++;
+
+                            if (tasksCompleted === tasksToComplete) {
+                                document.querySelector('.steps').classList.add('hidden');
+                                getLinkButton.classList.remove('hidden');
+                            }
+                        }
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</body>
+              </html>
